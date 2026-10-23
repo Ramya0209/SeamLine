@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fabric Seamline Studio</title>
+<style>
+:root{--ink:#17212b;--muted:#667085;--line:#e3e8ef;--bg:#f5f7fa;--accent:#2457d6;--red:#e5484d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+.page{max-width:1200px;margin:0 auto;padding:28px 18px 48px}
+header{margin-bottom:24px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:800}
+h1{margin:7px 0 8px;font-size:clamp(28px,4vw,38px);letter-spacing:-.04em}
+.sub{color:var(--muted);max-width:760px;line-height:1.55;margin:0}
+.layout{display:grid;grid-template-columns:minmax(300px,370px) minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 6px 22px rgba(20,35,60,.04)}
+h2{font-size:17px;margin:0 0 18px}.field{margin-bottom:15px}
+label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}
+input,select{width:100%;padding:11px 12px;border:1px solid #d5dce6;border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:14px;outline:none}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,87,214,.1)}
+input[type=file]{padding:10px;font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{color:var(--muted);font-size:11px;line-height:1.45;margin-top:6px}
+.section-label{margin:22px 0 12px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.buttons{display:flex;gap:10px;margin-top:20px}
+button{border:0;border-radius:9px;padding:12px 15px;font:inherit;font-weight:750;cursor:pointer}
+.primary{background:var(--accent);color:#fff;flex:1}.secondary{background:#eef2f8;color:#243247}
+button:disabled{opacity:.45;cursor:not-allowed}
+.preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.preview-head h2{margin:0}.status{font-size:11px;font-weight:750;color:#475467;background:#f2f4f7;border-radius:20px;padding:6px 9px;white-space:nowrap}
+.canvas-wrap{min-height:350px;display:flex;justify-content:center;align-items:center;overflow:auto;border:1px dashed #cbd4e1;border-radius:12px;background:repeating-conic-gradient(#f7f9fc 0% 25%,#fff 0% 50%) 50%/22px 22px}
+canvas{display:block;max-width:100%;height:auto}.empty{text-align:center;padding:55px 20px;color:var(--muted)}.symbol{font-size:34px;margin-bottom:10px}
+.results{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.metric{border:1px solid var(--line);border-radius:11px;padding:13px;background:#fff;min-width:0}.metric .k{color:var(--muted);font-size:11px;margin-bottom:7px}.metric .v{font-size:24px;font-weight:800;letter-spacing:-.03em}.metric .u{color:var(--muted);font-size:11px;margin-top:4px}
+.details{margin-top:14px;background:#f8faff;border:1px solid #e2e9fb;padding:14px;border-radius:10px;font-size:13px;line-height:1.7}
+.details strong{color:#243b75}.error{display:none;color:#b42318;background:#fff0ef;border:1px solid #ffd5d2;padding:10px 12px;border-radius:9px;font-size:12px;margin-top:12px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}.dot{display:inline-block;width:18px;border-top:3px solid var(--red);vertical-align:middle;margin-right:5px}
+.notice{margin-top:12px;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="eyebrow">Fabric planning tool</div>
+  <h1>Fabric Seamline Studio</h1>
+  <p class="sub">Upload the artwork, select a fabric, and enter the final artwork width and height. Roll dimensions from the workbook are used automatically to estimate panel sizes and seamline positions.</p>
+</header>
+<main class="layout">
+<section class="panel">
+  <h2>Design details</h2>
+  <div class="field">
+    <label for="imageInput">Artwork image</label>
+    <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+    <div class="hint">PNG, JPG, WebP or GIF. The image stays in your browser.</div>
+  </div>
+  <div class="field">
+    <label for="fabricType">Fabric type</label>
+    <select id="fabricType" required>
+      <option value="">Choose a fabric</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="gsm">GSM</label>
+    <input id="gsm" type="text" readonly placeholder="Automatically filled from fabric selection">
+  </div>
+  <div class="section-label">Final artwork size</div>
+  <div class="two">
+    <div class="field">
+      <label for="artWidth">Width</label>
+      <input id="artWidth" type="number" min="0.001" step="any" placeholder="Enter width" required>
+    </div>
+    <div class="field">
+      <label for="artHeight">Height</label>
+      <input id="artHeight" type="number" min="0.001" step="any" placeholder="Enter height" required>
+    </div>
+  </div>
+  <div class="field">
+    <label for="unit">Artwork measurement unit</label>
+    <select id="unit">
+      <option value="ft">Feet (ft)</option>
+      <option value="m">Metres (m)</option>
+      <option value="cm">Centimetres (cm)</option>
+      <option value="in">Inches (in)</option>
+    </select>
+  </div>
+  <div class="buttons">
+    <button class="primary" id="calculateBtn">Calculate seamlines</button>
+    <button class="secondary" id="resetBtn" type="button">Reset</button>
+  </div>
+  <div id="error" class="error" role="alert"></div>
+</section>
+<section class="panel">
+  <div class="preview-head"><h2>Seamline preview</h2><span class="status" id="status">Waiting for image</span></div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="empty" id="empty"><div class="symbol">▧</div><strong>Your artwork preview appears here</strong><div class="hint">Select a fabric, enter width and height, then calculate.</div></div>
+    <canvas id="previewCanvas" hidden></canvas>
+  </div>
+  <div class="legend"><span><i class="dot"></i>Estimated seamline</span><span>Red lines show panel boundaries</span></div>
+  <div class="results">
+    <div class="metric"><div class="k">Vertical seams</div><div class="v" id="verticalSeams">—</div><div class="u">seam lines</div></div>
+    <div class="metric"><div class="k">Horizontal seams</div><div class="v" id="horizontalSeams">—</div><div class="u">seam lines</div></div>
+    <div class="metric"><div class="k">Total panels</div><div class="v" id="panelCount">—</div><div class="u" id="panelBreakdown">across × down</div></div>
+    <div class="metric"><div class="k">Artwork size</div><div class="v" id="artworkSize">—</div><div class="u" id="artworkUnit">width × height</div></div>
+  </div>
+  <div class="details" id="details">Choose a fabric and enter the final artwork width and height to calculate the seamlines.</div>
+  <div class="buttons"><button class="primary" id="downloadBtn" disabled>Download preview PNG</button></div>
+</section>
+</main>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const fabrics = [{"category": "TrueKolor Eco-Friendly Wrinkle Free Fabric", "name": "TrueKolor Eco-Friendly Wrinkle-Resistant Fabric (260 GSM)", "gsm": 260.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "TrueKolor Eco-Friendly Wrinkle Free Fabric", "name": "TrueKolor Eco-Friendly 300D Wrinkle-Resistant Fabric (185GSM)", "gsm": 185.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "TrueKolor Eco-Friendly Wrinkle Free Fabric", "name": "TrueKolor Eco-Friendly 300D Flame-Retardant Fabric(185GSM)", "gsm": 185.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "TrueKolor Eco-Friendly Wrinkle Free Fabric", "name": "TrueKolor Eco-Friendly 300D Recycled RPET Fabric(180GSM)", "gsm": 180.0, "seamWidthFt": 7.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "TrueKolor Eco-Friendly Wrinkle Free Fabric", "name": "TrueKolor Eco-Friendly 300D Waterproof Performance Fabric (190GSM)", "gsm": 190.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Poly Canvas Fabric Banner Printing", "name": "Spun Polyester Poly Canvas Fabric (140GSM)", "gsm": 140.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Poly Canvas Fabric Banner Printing", "name": "800D High-Density Linen-Look Polyester (300 GSM)", "gsm": 300.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Standard Blockout Fabric (300GSM)", "gsm": 300.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Blockout Tension Fabric – Flame Retardant (240 GSM)", "gsm": 240.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Blockout Elastic Polyester – Flame Retardant (240 GSM)", "gsm": 240.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Blockout Soft Knit Fabric – Flame Retardant (250 GSM)", "gsm": 250.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Premium Blockout Fabric (250 GSM)", "gsm": 250.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Blockout Fabric Backdrop Printing", "name": "Heavy-Duty Blockout Fabric – Flame Retardant (280 GSM)", "gsm": 280.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Poly Poplin Fabric Backdrop Printing", "name": "Poly Poplin Knitted Polyester (110 GSM)", "gsm": 110.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Poly Poplin Fabric Backdrop Printing", "name": "Poly Poplin Knitted Polyester (115 GSM)", "gsm": 115.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Poly Poplin Fabric Backdrop Printing", "name": "Poly Poplin Shiny Knitted Polyester (130 GSM)", "gsm": 130.0, "seamWidthFt": 5.4, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Flannel Polyester Fabric Printing", "name": "Flannel Polyester Blanket Fabric (280 GSM)", "gsm": 280.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Felt Polyester Fabric Printing -280G", "name": "Felt Polyester Fabric (280 GSM)", "gsm": 280.0, "seamWidthFt": 3.3, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Felt Polyester Fabric Printing -280G", "name": "Felt Pennants (280 GSM)", "gsm": 280.0, "seamWidthFt": 3.4, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Specialty Display & Cover Fabrics", "name": "Silk Spandex Polyester Fabric (180 GSM)", "gsm": 180.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Specialty Display & Cover Fabrics", "name": "Elastic Polyester Stretch Fabric (180 GSM)", "gsm": 180.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Specialty Display & Cover Fabrics", "name": "Twill Fabric for Fitted Covers (160 GSM)", "gsm": 160.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Satin & Decorative Fabric Printing", "name": "Poly Satin Fabric (120 GSM)", "gsm": 120.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Satin & Decorative Fabric Printing", "name": "Silver-Coated Satin Fabric (130 GSM)", "gsm": 130.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "210D Ripstop Oxford Polyester (140 GSM)", "gsm": 140.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "Oxford 450D Fabric (240 GSM)", "gsm": 240.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "PU-Coated 600D Polyester (300 GSM)", "gsm": 300.0, "seamWidthFt": 8.5, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "Tarpaulin 600D Fabric (480 GSM)", "gsm": 480.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "Polyester Linen 800D Fabric (260 GSM)", "gsm": 260.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "Black PU-Coated 600D Polyester (300 GSM) – Unprinted", "gsm": 300.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "White PU-Coated 600D Polyester (300 GSM) – Unprinted", "gsm": 300.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Heavy-Duty Polyester & Oxford Fabric Printing", "name": "Grey PU-Coated 600D Polyester (300 GSM) – Unprinted", "gsm": 300.0, "seamWidthFt": 4.9, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "SEG Display Fabric Printing", "name": "Flame-Retardant SEG Backlit Fabric (150 GSM)", "gsm": 150.0, "seamWidthFt": 8.7, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "SEG Display Fabric Printing", "name": "Flame-Retardant SEG Non-lit Fabric (260 GSM)", "gsm": 260.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Flag & Promotional Fabric Printing", "name": "100D Knitted Polyester (95 GSM)", "gsm": 95.0, "seamWidthFt": 6.6, "seamLengthFt": 30.0, "sheet": "Fabric Banner Printing"}, {"category": "Ultra Sheer Fabric Backdrop Printing", "name": "100D Ultra Sheer Polyester Fabric (100 GSM)", "gsm": 100.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Fluorescent Polyester Fabric Printing", "name": "Fluorescent Knitted Polyester Fabric – Orange (115 GSM)", "gsm": 115.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Fluorescent Polyester Fabric Printing", "name": "Fluorescent Knitted Polyester Fabric – Yellow (115 GSM)", "gsm": 115.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Fluorescent Polyester Fabric Printing", "name": "Fluorescent 300D High-Density Polyester – Orange (190 GSM)", "gsm": 190.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Airmesh Fabric Banner Printing", "name": "Airmesh Mesh Polyester (120 GSM)", "gsm": 120.0, "seamWidthFt": 10.0, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Polyester Taffeta Fabric Printing", "name": "210T Polyester Taffeta Fabric (60 GSM)", "gsm": 60.0, "seamWidthFt": 4.6, "seamLengthFt": 30.0, "sheet": "Digital Fabric Printing"}, {"category": "Duplex Blockout Fabric Printing", "name": "Duplex Blockout Polyester (260 GSM)", "gsm": 260.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Knitted Polyester Fabric Printing", "name": "Duplex Knitted Polyester (115 GSM)", "gsm": 115.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Knitted Polyester Fabric Printing", "name": "Duplex 100D Polyester (100 GSM)", "gsm": 100.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Knitted Polyester Fabric Printing", "name": "Duplex 100D Polyester (75 GSM)", "gsm": 75.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Knitted Polyester Fabric Printing", "name": "Duplex Spun Polyester (140 GSM)", "gsm": 140.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Satin Fabric Printing", "name": "Duplex Shiny Satin (120 GSM)", "gsm": 120.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Satin Fabric Printing", "name": "Duplex Satin (120 GSM)", "gsm": 120.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Duplex Oxford Fabric Printing", "name": "Duplex 210D Oxford Polyester (150 GSM)", "gsm": 150.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Duplex Fabric Printing"}, {"category": "Crystal Velvet Carpet", "name": "Crystal Velvet Carpet (850 GSM)", "gsm": 850.0, "seamWidthFt": 5.2, "seamLengthFt": 30.0, "sheet": "Crystal Velvet Carpet"}, {"category": "Customized Truss Banners", "name": "Seamless Tubular Jersey (130 GSM)", "gsm": 130.0, "seamWidthFt": 0.8, "seamLengthFt": 30.0, "sheet": "Customized Truss Banners"}];
+  const imageInput = $('imageInput');
+  const canvas = $('previewCanvas');
+  const ctx = canvas.getContext('2d');
+  const artworkImage = new Image();
+  let imageLoaded = false;
+  let currentLayout = null;
+  const toFeet = { ft: 1, m: 3.280839895, cm: 0.03280839895, in: 0.0833333333333 };
+  const fromFeet = { ft: 1, m: 0.3048, cm: 30.48, in: 12 };
+
+  const select = $('fabricType');
+  let lastCategory = '';
+  const groups = new Map();
+  fabrics.forEach((fabric, index) => {
+    if (!groups.has(fabric.category)) groups.set(fabric.category, []);
+    groups.get(fabric.category).push({ ...fabric, index });
+  });
+  groups.forEach((entries, category) => {
+    const group = document.createElement('optgroup');
+    group.label = category;
+    entries.forEach(f => {
+      const option = document.createElement('option');
+      option.value = String(f.index);
+      option.textContent = f.name;
+      group.appendChild(option);
+    });
+    select.appendChild(group);
+  });
+
+  function selectedFabric() {
+    const index = select.value;
+    return index === '' ? null : fabrics[Number(index)] || null;
+  }
+  function showError(message) {
+    $('error').textContent = message;
+    $('error').style.display = 'block';
+  }
+  function clearError() {
+    $('error').textContent = '';
+    $('error').style.display = 'none';
+  }
+  function resetResults() {
+    ['verticalSeams','horizontalSeams','panelCount','artworkSize'].forEach(id => $(id).textContent = '—');
+    $('panelBreakdown').textContent = 'across × down';
+    $('artworkUnit').textContent = 'width × height';
+    $('details').innerHTML = 'Choose a fabric and enter the final artwork width and height to calculate the seamlines.';
+    $('downloadBtn').disabled = true;
+    currentLayout = null;
+  }
+
+  select.addEventListener('change', () => {
+    const fabric = selectedFabric();
+    $('gsm').value = fabric && fabric.gsm !== null ? `${fabric.gsm} GSM` : 'Not specified in workbook';
+    clearError();
+    resetResults();
+    if (imageLoaded && $('artWidth').value && $('artHeight').value) {
+      // Require the designer to click Calculate to explicitly refresh the preview.
+      $('status').textContent = 'Ready to calculate';
+    }
+  });
+
+  imageInput.addEventListener('change', () => {
+    clearError();
+    const file = imageInput.files && imageInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showError('Please upload a valid image file.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = event => {
+      artworkImage.onload = () => {
+        imageLoaded = true;
+        $('empty').hidden = true;
+        canvas.hidden = false;
+        $('status').textContent = 'Image loaded';
+        drawPreview(null);
+      };
+      artworkImage.onerror = () => showError('The selected image could not be loaded. Please try another image.');
+      artworkImage.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function drawPreview(layout) {
+    if (!imageLoaded) return;
+    const maxWidth = 1000, maxHeight = 760;
+    const scale = Math.min(maxWidth / artworkImage.naturalWidth, maxHeight / artworkImage.naturalHeight, 1);
+    canvas.width = Math.max(1, Math.round(artworkImage.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(artworkImage.naturalHeight * scale));
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(artworkImage, 0, 0, canvas.width, canvas.height);
+    if (!layout) return;
+    ctx.save();
+    ctx.strokeStyle = '#ff2638';
+    ctx.lineWidth = Math.max(2, canvas.width / 450);
+    ctx.setLineDash([Math.max(5, canvas.width / 90), Math.max(3, canvas.width / 150)]);
+    // Lines are positioned according to the real-world artwork-to-fabric dimensions.
+    for (let i = 1; i < layout.columns; i++) {
+      const x = (i * layout.fabricWidthFt / layout.artWidthFt) * canvas.width;
+      if (x > 0 && x < canvas.width) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+    }
+    for (let i = 1; i < layout.rows; i++) {
+      const y = (i * layout.fabricLengthFt / layout.artHeightFt) * canvas.height;
+      if (y > 0 && y < canvas.height) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function calculate() {
+    clearError();
+    const fabric = selectedFabric();
+    const width = Number($('artWidth').value);
+    const height = Number($('artHeight').value);
+    const unit = $('unit').value;
+    if (!fabric) return showError('Please select a fabric type.');
+    if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
+      return showError('Please enter a valid artwork width and height greater than zero.');
+    }
+    const artWidthFt = width * toFeet[unit];
+    const artHeightFt = height * toFeet[unit];
+    const fabricWidthFt = fabric.seamWidthFt;
+    const fabricLengthFt = fabric.seamLengthFt;
+    const columns = Math.max(1, Math.ceil((artWidthFt - 1e-9) / fabricWidthFt));
+    const rows = Math.max(1, Math.ceil((artHeightFt - 1e-9) / fabricLengthFt));
+    const vertical = Math.max(0, columns - 1);
+    const horizontal = Math.max(0, rows - 1);
+    const totalPanels = columns * rows;
+    currentLayout = { artWidthFt, artHeightFt, fabricWidthFt, fabricLengthFt, columns, rows };
+    $('verticalSeams').textContent = vertical;
+    $('horizontalSeams').textContent = horizontal;
+    $('panelCount').textContent = totalPanels;
+    $('panelBreakdown').textContent = `${columns} across × ${rows} down`;
+    $('artworkSize').textContent = `${width} × ${height}`;
+    $('artworkUnit').textContent = `${unit} (width × height)`;
+    $('details').innerHTML =
+      `<strong>Selected fabric:</strong> ${escapeHtml(fabric.name)}<br>` +
+      `<strong>Fabric seamline size:</strong> ${fabric.seamWidthFt}ft × ${fabric.seamLengthFt}ft<br>` +
+      `<strong>Artwork size:</strong> ${width} × ${height} ${unit}<br>` +
+      `<strong>Artwork converted to feet:</strong> ${format(artWidthFt)}ft wide × ${format(artHeightFt)}ft high<br>` +
+      `<strong>Panel layout:</strong> ${columns} across × ${rows} down = ${totalPanels} panels<br>` +
+      `<strong>Estimated seams:</strong> ${vertical} vertical + ${horizontal} horizontal = ${vertical + horizontal} total seamlines`;
+    if (imageLoaded) {
+      drawPreview(currentLayout);
+      $('status').textContent = 'Seamlines calculated';
+      $('downloadBtn').disabled = false;
+    } else {
+      $('status').textContent = 'Calculation ready';
+      $('downloadBtn').disabled = true;
+      $('details').innerHTML += '<br><strong>Preview:</strong> Upload an artwork image to see seamlines overlaid.';
+    }
+  }
+
+  function format(value) { return Number(value.toFixed(2)).toString(); }
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  $('calculateBtn').addEventListener('click', calculate);
+  $('resetBtn').addEventListener('click', () => {
+    imageInput.value = '';
+    select.value = '';
+    $('gsm').value = '';
+    $('seamSize').value = '';
+    $('artWidth').value = '';
+    $('artHeight').value = '';
+    $('unit').value = 'ft';
+    imageLoaded = false;
+    currentLayout = null;
+    artworkImage.src = '';
+    canvas.hidden = true;
+    $('empty').hidden = false;
+    $('status').textContent = 'Waiting for image';
+    clearError();
+    resetResults();
+  });
+  $('downloadBtn').addEventListener('click', () => {
+    if (!imageLoaded || !currentLayout) return;
+    const link = document.createElement('a');
+    link.download = 'fabric-seamline-preview.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+})();
+</script>
+</body>
+</html>
